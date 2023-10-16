@@ -15,7 +15,7 @@ import javafx.scene.layout.RowConstraints;
 
 import java.io.IOException;
 
-/**
+/**L
  * The OutputFrameController class.  It controls button input from the users when
  * playing the game.
  *
@@ -50,13 +50,18 @@ public class OutputFrameController {
     private int playerOScore;
     private int roundsLeft;
     private boolean isBotFirst;
-    private Bot bot;
+    private MinimaxBot bot;
+
+    private GameState gameState;
 
 
     private static final int ROW = 8;
     private static final int COL = 8;
     private Button[][] buttons = new Button[ROW][COL];
 
+    public Button[][] getButtons() {
+        return this.buttons;
+    }
 
     /**
      * Set the name of player X (player) to be name1, set the name of player O (bot) to be name2,
@@ -77,7 +82,7 @@ public class OutputFrameController {
         this.isBotFirst = isBotFirst;
 
         // Start bot
-        this.bot = new Bot();
+        this.bot = new MinimaxBot(this.gameState);
         this.playerXTurn = !isBotFirst;
         if (this.isBotFirst) {
             this.moveBot();
@@ -94,7 +99,7 @@ public class OutputFrameController {
      */
     @FXML
     private void initialize() {
-        // Construct game board with 8 rows.
+        this.gameState = new GameState();
         for (int i = 0; i < ROW; i++) {
             RowConstraints rowConst = new RowConstraints();
             rowConst.setPercentHeight(100.0 / ROW);
@@ -125,14 +130,45 @@ public class OutputFrameController {
         }
 
         // Setting up the initial game board with 4 X's in bottom left corner and 4 O's in top right corner.
-        this.buttons[ROW - 2][0].setText("X");
-        this.buttons[ROW - 1][0].setText("X");
-        this.buttons[ROW - 2][1].setText("X");
-        this.buttons[ROW - 1][1].setText("X");
-        this.buttons[0][COL - 2].setText("O");
-        this.buttons[0][COL - 1].setText("O");
-        this.buttons[1][COL - 2].setText("O");
-        this.buttons[1][COL - 1].setText("O");
+        for (int i = 0; i <  ROW; i++) {
+            this.buttons[i][0].setText("B");
+            this.buttons[i][1].setText("B");
+            this.buttons[i][2].setText("B");
+            this.buttons[i][3].setText("B");
+            this.gameState.node[i][0] = ("B");
+            this.gameState.node[i][1] = ("B");
+            this.gameState.node[i][2] = ("B");
+            this.gameState.node[i][3] = ("B");
+        }
+
+        for (int i = 0; i <  COL; i++) {
+            this.buttons[0][i].setText("B");
+            this.buttons[1][i].setText("B");
+            this.buttons[2][i].setText("B");
+            this.buttons[3][i].setText("B");
+            this.gameState.node[0][i] = ("B");
+            this.gameState.node[1][i] = ("B");
+            this.gameState.node[2][i] = ("B");
+            this.gameState.node[3][i] = ("B");
+
+        }
+//        this.buttons[ROW - 2][0].setText("X");
+//        this.buttons[ROW - 1][0].setText("X");
+//        this.buttons[ROW - 2][1].setText("X");
+//        this.buttons[ROW - 1][1].setText("X");
+//        this.buttons[0][COL - 2].setText("O");
+//        this.buttons[0][COL - 1].setText("O");
+//        this.buttons[1][COL - 2].setText("O");
+//        this.buttons[1][COL - 1].setText("O");
+//
+//        this.gameState.node[ROW - 2][0] = ("X");
+//        this.gameState.node[ROW - 1][0] = ("X");
+//        this.gameState.node[ROW - 2][1] = ("X");
+//        this.gameState.node[ROW - 1][1] = ("X");
+//        this.gameState.node[0][COL - 2] = ("O");
+//        this.gameState.node[0][COL - 1] = ("O");
+//        this.gameState.node[1][COL - 2] = ("O");
+//        this.gameState.node[1][COL - 1] = ("O");
 
 
         // Construct score board with 8 rows.
@@ -181,6 +217,7 @@ public class OutputFrameController {
                 this.playerXBoxPane.setStyle("-fx-background-color: WHITE; -fx-border-color: #D3D3D3;");
                 this.playerOBoxPane.setStyle("-fx-background-color: #90EE90; -fx-border-color: #D3D3D3;");
                 this.buttons[i][j].setText("X");  // Mark the board with X.
+                this.gameState.node[i][j] = "X";
                 this.playerXScore++;              // Increment the score of player X.
 
                 // Update game board by changing surrounding cells to X if applicable.
@@ -203,6 +240,7 @@ public class OutputFrameController {
                 this.playerXBoxPane.setStyle("-fx-background-color: #90EE90; -fx-border-color: #D3D3D3;");
                 this.playerOBoxPane.setStyle("-fx-background-color: WHITE; -fx-border-color: #D3D3D3;");
                 this.buttons[i][j].setText("O");
+                this.gameState.node[i][j] = "O";
                 this.playerOScore++;
 
                 this.updateGameBoard(i, j);
@@ -272,11 +310,13 @@ public class OutputFrameController {
     private void setPlayerScore(int i, int j){
         if (this.playerXTurn) {
             if (this.buttons[i][j].getText().equals("O")) {
+                this.gameState.node[i][j] = "X";
                 this.buttons[i][j].setText("X");
                 this.playerXScore++;
                 this.playerOScore--;
             }
         } else if (this.buttons[i][j].getText().equals("X")) {
+            this.gameState.node[i][j] = "O";
             this.buttons[i][j].setText("O");
             this.playerOScore++;
             this.playerXScore--;
