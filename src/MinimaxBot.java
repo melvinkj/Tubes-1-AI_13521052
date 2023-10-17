@@ -1,29 +1,28 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinimaxBot implements IBot {
+public class MinimaxBot extends Bot {
     private static int ROW = 8;
     private static int COL = 8;
     public static int MAX_PLAYER = 1;
     public static int MIN_PLAYER = 0;
-    GameState currentState;
-    MinimaxBot (GameState gameState) {
-        this.currentState = gameState;
+
+    public MinimaxBot(OutputFrameController gameBoard) {
+        super(gameBoard);
     }
 
-
     public int[] move() {
-        this.currentState.printBoard();
+        this.getCurrentState().printBoard();
         System.out.println();
         return bestMoveMinimaxWithCutoff();
     }
 
     public int[] bestMoveMinimax() {
-        List<int[]> possibleMoves = currentState.getWhiteSpots();
+        List<int[]> possibleMoves = getCurrentState().getWhiteSpots();
         int[] bestMove = possibleMoves.get(0);
         int bestMoveValue = -999;
         for (int[] possibleMove: possibleMoves) {
-            GameState projectedState = new GameState(currentState);
+            GameState projectedState = new GameState(getCurrentState());
             projectedState.putO(possibleMove[0], possibleMove[1]);
             int projectedStateValue = minimax(MAX_PLAYER, projectedState, -999, 999);
             if (projectedStateValue > bestMoveValue) {
@@ -35,7 +34,8 @@ public class MinimaxBot implements IBot {
         return bestMove;
     }
     public int minimax(int player, GameState gameState, int alpha, int beta) {
-        List<int[]> neighbours = gameState.getWhiteSpots();
+        List<int[]> neighbours = getCurrentState().getWhiteSpots();
+
         boolean isTerminate = neighbours.isEmpty();
         if (isTerminate) {
             return gameState.utility();
@@ -66,9 +66,9 @@ public class MinimaxBot implements IBot {
     }
 
     public int[] bestMoveMinimaxWithCutoff() {
-        int MAX_TREE_GENERATED = 100000;
+        int MAX_TREE_GENERATED = 20000;
 
-        List<int[]> possibleMoves = currentState.getWhiteSpots();
+        List<int[]> possibleMoves = getCurrentState().getWhiteSpots();
         int[] bestMove = possibleMoves.get(0);
         int bestMoveValue = -999;
         int countNeighbours = possibleMoves.size();
@@ -76,7 +76,7 @@ public class MinimaxBot implements IBot {
         int alpha = -999;
         int beta = 999;
         for (int[] possibleMove: possibleMoves) {
-            GameState projectedState = new GameState(currentState);
+            GameState projectedState = new GameState(getCurrentState());
             projectedState.putO(possibleMove[0], possibleMove[1]);
             int projectedStateValue = minimaxWithCutoff(MAX_PLAYER, projectedState, alpha, beta, maxDepth);
             if (projectedStateValue > bestMoveValue) {
