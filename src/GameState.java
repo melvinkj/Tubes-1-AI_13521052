@@ -7,18 +7,30 @@ public class GameState {
     public static int ROW = 8;
     public static int COL = 8;
 
+    OutputFrameController gameBoard;
+
     String[][] node;
+
+    public GameState(OutputFrameController gameBoard) {
+        this.gameBoard = gameBoard;
+
+        copyFromGameboard();
+    }
+
     public GameState() {
+        this.gameBoard = new OutputFrameController();
+
         this.node = new String[ROW][COL];
         for (int i = 0; i < ROW; i++) {
             for (int j = 0; j < COL; j++) {
                 this.node[i][j] = "";
             }
         }
-
     }
 
     public GameState(GameState other) {
+        this.gameBoard = other.gameBoard;
+
         this.node = new String[ROW][COL];
         for (int i = 0; i < ROW; i++) {
             for (int j = 0; j < COL; j++) {
@@ -26,6 +38,16 @@ public class GameState {
             }
         }
     }
+
+    public void copyFromGameboard() {
+        this.node = new String[ROW][COL];
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                this.node[i][j] = this.gameBoard.getButtons()[i][j].getText();
+            }
+        }
+    }
+
 
     public int evaluate() {
         int countX = 0;
@@ -150,5 +172,9 @@ public class GameState {
             System.out.println();
 
         }
+    }
+
+    public String[][] getNode() {
+        return this.node;
     }
 }
