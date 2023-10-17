@@ -63,6 +63,10 @@ public class OutputFrameController {
         return this.buttons;
     }
 
+    public int getRoundsLeft() {
+        return this.roundsLeft;
+    }
+
     /**
      * Set the name of player X (player) to be name1, set the name of player O (bot) to be name2,
      * and the number of rounds played to be rounds. This input is received from

@@ -1,11 +1,15 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class MinimaxBot extends Bot {
     private static int ROW = 8;
     private static int COL = 8;
     public static int MAX_PLAYER = 1;
     public static int MIN_PLAYER = 0;
+
+    private static int INF = 999999999;
 
     public MinimaxBot(OutputFrameController gameBoard) {
         super(gameBoard);
@@ -18,55 +22,58 @@ public class MinimaxBot extends Bot {
     }
 
     public int[] bestMoveMinimax() {
-        int MAX_TREE_GENERATED = 100000;
+        int defaultMaxTreeGenerated = 1000000;
+        return bestMoveMinimax(defaultMaxTreeGenerated, MinimaxBot::defaultNeighboursGenerator);
+    }
 
-        List<int[]> possibleMoves = currentState.getWhiteSpots();
+    public int[] bestMoveMinimax(int maxTreeGenerated, Function<GameState, List<int[]>> neighboursGenerator) {
+        List<int[]> possibleMoves = neighboursGenerator.apply(this.getCurrentState());
         int[] bestMove = possibleMoves.get(0);
-        int bestMoveValue = -999;
+        int bestMoveValue = -INF;
         int countNeighbours = possibleMoves.size();
-        int maxDepth = calculateMaxDepthMinimax(countNeighbours, MAX_TREE_GENERATED);
-        int alpha = -999;
-        int beta = 999;
+        int maxDepth = calculateMaxDepthMinimax(countNeighbours, maxTreeGenerated);
+        int alpha = -INF;
+        int beta = INF;
         for (int[] possibleMove : possibleMoves) {
             GameState projectedState = new GameState(currentState);
             projectedState.putO(possibleMove[0], possibleMove[1]);
-            int projectedStateValue = minimax(MAX_PLAYER, projectedState, alpha, beta, maxDepth, true);
+            int projectedStateValue = minimax(MAX_PLAYER, projectedState, alpha, beta, maxDepth, neighboursGenerator);
             if (projectedStateValue > bestMoveValue) {
                 bestMove = possibleMove;
                 bestMoveValue = projectedStateValue;
-                System.out.println(bestMoveValue);
             }
         }
         return bestMove;
     }
 
-    public int minimax(int player, GameState gameState, int alpha, int beta, int depth, boolean withCutoff) {
-        List<int[]> neighbours = gameState.getWhiteSpots();
-        boolean isTerminate = neighbours.isEmpty() || (withCutoff && depth <= 0);
+    public int minimax(int player, GameState gameState, int alpha, int beta, int depth, Function<GameState, List<int[]>> neighboursGenerator) {
+        List<int[]> neighbours = neighboursGenerator.apply(gameState);
+
+        boolean isTerminate = neighbours.isEmpty();
         if (isTerminate) {
-            if (withCutoff) {
-                return gameState.evaluate();
-            } else {
-                return gameState.utility();
-            }
+            System.out.println("UTIL" + gameState.utility());
+            return gameState.utility();
+        } else if (depth <= 0) {
+            System.out.println("EVAL"  + gameState.evaluate());
+            return gameState.evaluate();
         }
         if (player == MAX_PLAYER) {
-            int maxNeighbourValue = -999;
+            int maxNeighbourValue = -INF;
             for (int[] neighbour : neighbours) {
                 GameState projectedState = new GameState(gameState);
                 projectedState.putO(neighbour[0], neighbour[1]);
-                int neighbourValue = minimax(MIN_PLAYER, projectedState, alpha, beta, withCutoff ? depth - 1 : depth, withCutoff);
+                int neighbourValue = minimax(MIN_PLAYER, projectedState, alpha, beta, depth - 1, neighboursGenerator);
                 maxNeighbourValue = Math.max(neighbourValue, maxNeighbourValue);
                 alpha = Math.max(neighbourValue, alpha);
                 if (beta <= alpha) break;
             }
             return maxNeighbourValue;
         } else {
-            int minNeighbourValue = 999;
+            int minNeighbourValue = INF;
             for (int[] neighbour : neighbours) {
                 GameState projectedState = new GameState(gameState);
                 projectedState.putX(neighbour[0], neighbour[1]);
-                int neighbourValue = minimax(MAX_PLAYER, projectedState, alpha, beta, withCutoff ? depth - 1 : depth, withCutoff);
+                int neighbourValue = minimax(MAX_PLAYER, projectedState, alpha, beta, depth - 1, neighboursGenerator);
                 minNeighbourValue = Math.min(neighbourValue, minNeighbourValue);
                 beta = Math.min(neighbourValue, beta);
                 if (beta <= alpha) break;
@@ -85,4 +92,9 @@ public class MinimaxBot extends Bot {
         }
         return depth;
     }
+
+    private static List<int[]> defaultNeighboursGenerator(GameState gameState) {
+        return gameState.getWhiteSpots();
+    }
+
 }
