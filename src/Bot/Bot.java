@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 
 public abstract class Bot implements Callable<int[]> {
 
-    private String symbol = "O";
+    public String symbol = "O";
     public GameState currentState;
     private GameStateEvaluator defaultEvaluator;
 
@@ -25,8 +25,8 @@ public abstract class Bot implements Callable<int[]> {
         this.currentState = currentState;
     }
 
-    public Bot(GameState currentState, String symbol){
-        this.currentState = currentState;
+    public Bot(OutputFrameController gameBoard, String symbol){
+        this.currentState = new GameState(gameBoard);
         this.symbol = symbol;
     }
 

@@ -111,7 +111,7 @@ public class OutputFrameController {
         if(this.bot1Algo.equals("Minimax")){
             this.bot = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
         }else if(this.bot1Algo.equals("Local Search")){
-            this.bot = new LocalBot(this);
+            this.bot = new LocalBot(this, "O");
         }else{
             // TODO
             System.out.println("belum kelar");
@@ -119,7 +119,7 @@ public class OutputFrameController {
         if(this.bot2Algo.equals("Minimax")){
             this.bot2 = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
         }else if(this.bot2Algo.equals("Local Search")){
-            this.bot2 = new LocalBot(this);
+            this.bot2 = new LocalBot(this, "X");
         }else{
             // TODO
             System.out.println("belum kelar");
