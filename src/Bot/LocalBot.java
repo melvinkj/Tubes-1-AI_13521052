@@ -57,8 +57,8 @@ public class LocalBot extends Bot {
             return (countPointO - countPointX);
         }
 
-
-        public int[] move() {
+        @Override
+        public int[] getBestMove() {
             boolean accept = false;
             double threshold = 0.9;
             int neighbourValue = 0;

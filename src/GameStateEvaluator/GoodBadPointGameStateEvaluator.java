@@ -1,12 +1,11 @@
-package Evaluator;
+package GameStateEvaluator;
 
-import Evaluator.Evaluator;
 import Main.GameState;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GoodBadPointEvaluator implements Evaluator {
+public class GoodBadPointGameStateEvaluator implements GameStateEvaluator {
     @Override
     public int evaluate(GameState gameState) {
         int countX = 0;

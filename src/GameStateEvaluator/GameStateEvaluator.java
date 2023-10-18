@@ -1,7 +1,7 @@
-package Evaluator;
+package GameStateEvaluator;
 
 import Main.GameState;
 
-public interface Evaluator {
+public interface GameStateEvaluator {
     abstract int evaluate(GameState gameState);
 }

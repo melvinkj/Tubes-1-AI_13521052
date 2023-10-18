@@ -3,6 +3,9 @@ package Main;
 import Bot.Bot;
 import Bot.LocalBot;
 import Bot.MinimaxBot;
+import GameStateEvaluator.LinearVolatilityGameStateEvaluator;
+import GameStateEvaluator.VolatileNonVolatileGameStateEvaluator;
+import SuccessorsGenerator.DefaultSuccessorsGenerator;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -106,7 +109,7 @@ public class OutputFrameController {
 
         // Start bot
         if(this.bot1Algo.equals("Minimax")){
-            this.bot = new MinimaxBot(this);
+            this.bot = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
         }else if(this.bot1Algo.equals("Local Search")){
             this.bot = new LocalBot(this);
         }else{
@@ -114,7 +117,7 @@ public class OutputFrameController {
             System.out.println("belum kelar");
         }
         if(this.bot2Algo.equals("Minimax")){
-            this.bot2 = new MinimaxBot(this);
+            this.bot2 = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
         }else if(this.bot2Algo.equals("Local Search")){
             this.bot2 = new LocalBot(this);
         }else{

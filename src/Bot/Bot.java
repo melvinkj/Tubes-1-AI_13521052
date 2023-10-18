@@ -1,16 +1,31 @@
 package Bot;
 
+import GameStateEvaluator.GameStateEvaluator;
+import GameStateEvaluator.VolatileNonVolatileGameStateEvaluator;
 import Main.GameState;
 import Main.OutputFrameController;
 
-public abstract class Bot {
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.*;
+
+public abstract class Bot implements Callable<int[]> {
     public GameState currentState;
+    private GameStateEvaluator defaultEvaluator;
 
     public Bot(OutputFrameController gameBoard) {
+        this.defaultEvaluator = new VolatileNonVolatileGameStateEvaluator();
         this.currentState = new GameState(gameBoard);
     }
+
     public Bot(GameState currentState) {
         this.currentState = currentState;
+    }
+
+    @Override
+    public int[] call() {
+        return getBestMove();
     }
 
     public GameState getCurrentState() {
@@ -18,5 +33,38 @@ public abstract class Bot {
         return this.currentState;
     }
 
-    public abstract int[] move();
+    public abstract int[] getBestMove();
+
+    public int[] getDefaultMove() {
+        int bestValue = -999;
+        int[] bestMove = null;
+
+        GameState currentState = getCurrentState();
+        List<int[]> successors = currentState.getWhiteSpots();
+        for (int[] successor : successors) {
+            GameState projectedState = new GameState(currentState);
+            projectedState.putO(successor[0], successor[1]);
+            int successorValue = defaultEvaluator.evaluate(projectedState);
+            if (successorValue > bestValue) {
+                bestValue = successorValue;
+                bestMove = successor;
+            }
+        }
+        return bestMove;
+    }
+
+    public int[] move() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<int[]> future = executorService.submit(this);
+        try {
+            int[] result = future.get(4900, TimeUnit.MILLISECONDS);
+            return result;
+        } catch (Exception e) {
+            System.out.println("Implementator failed to give result on time, default move executed.");
+            return getDefaultMove();
+        } finally {
+            executorService.shutdown();
+        }
+    }
+
 }
