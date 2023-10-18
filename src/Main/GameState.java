@@ -54,7 +54,7 @@ public class GameState {
         }
     }
 
-    public boolean isFixed(int i, int j) {
+    public boolean isVolatile(int i, int j) {
         int[][] valVector = new int[][]{{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
         for (int[] vector: valVector) {
             int _i = i - vector[0];
@@ -65,32 +65,19 @@ public class GameState {
         }
         return true;
     }
-    public int evaluate() {
-        int countVolatileX = 0;
-        int countVolatileO = 0;
-        int countFixedX = 0;
-        int countFixedO = 0;
-        for (int i = 0; i < ROW; i++) {
-            for (int j = 0; j < COL; j++) {
-                if (node[i][j] == "X") {
-                    if (isFixed(i, j)) {
-                        countFixedX++;
-                    } else {
-                        countVolatileX++;
-                    }
-                } else if (node[i][j] == "O") {
-                    if (isFixed(i, j)) {
-                        countFixedO++;
-                    } else {
-                        countVolatileO++;
-                    }
-                }
+
+    public int volatilityScore(int i, int j) {
+        int score = 0;
+        int[][] valVector = new int[][]{{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+        for (int[] vector: valVector) {
+            int _i = i - vector[0];
+            int _j = j - vector[1];
+            if (isNodeValid(_i, _j) && (node[_i][_j] == node[i][j])) {
+                score++;
             }
         }
-        return 4 * (countFixedO - countFixedX) + 1 * (countVolatileO - countVolatileX);
+        return score;
     }
-
-
 
     public int utility() {
         int countX = 0;

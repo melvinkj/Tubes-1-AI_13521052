@@ -3,6 +3,9 @@ package Main;
 import Bot.Bot;
 import Bot.LocalBot;
 import Bot.MinimaxBot;
+import GameStateEvaluator.LinearVolatilityGameStateEvaluator;
+import GameStateEvaluator.VolatileNonVolatileGameStateEvaluator;
+import SuccessorsGenerator.DefaultSuccessorsGenerator;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -90,8 +93,10 @@ public class OutputFrameController {
         this.roundsLeft = Integer.parseInt(rounds);
         this.isBotFirst = isBotFirst;
 
-        // Start bot
-        this.bot = new LocalBot(this);
+//         Start bot
+        this.bot = new MinimaxBot(this, new LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 9000000);
+
+
         this.playerXTurn = !isBotFirst;
         if (this.isBotFirst) {
             this.moveBot();
