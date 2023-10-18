@@ -24,7 +24,7 @@ public abstract class Bot implements Callable<int[]> {
     }
 
     @Override
-    public int[] call() {
+    public int[] call() throws Exception {
         return getBestMove();
     }
 
@@ -33,7 +33,7 @@ public abstract class Bot implements Callable<int[]> {
         return this.currentState;
     }
 
-    public abstract int[] getBestMove();
+    public abstract int[] getBestMove() throws Exception;
 
     public int[] getDefaultMove() {
         int bestValue = -999;
@@ -58,6 +58,9 @@ public abstract class Bot implements Callable<int[]> {
         Future<int[]> future = executorService.submit(this);
         try {
             int[] result = future.get(4900, TimeUnit.MILLISECONDS);
+            if (result == null) {
+                throw new Exception();
+            }
             return result;
         } catch (Exception e) {
             System.out.println("Implementator failed to give result on time, default move executed.");

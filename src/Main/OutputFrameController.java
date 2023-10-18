@@ -94,9 +94,7 @@ public class OutputFrameController {
         this.isBotFirst = isBotFirst;
 
 //         Start bot
-        this.bot = new MinimaxBot(this, new LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 9000000);
-
-
+        this.bot = new MinimaxBot(this, new VolatileNonVolatileGameStateEvaluator(), new DefaultSuccessorsGenerator());
         this.playerXTurn = !isBotFirst;
         if (this.isBotFirst) {
             this.moveBot();
