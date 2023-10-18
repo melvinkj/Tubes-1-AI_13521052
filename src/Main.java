@@ -14,7 +14,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("InputFrame.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("Main/InputFrame.fxml"));
         primaryStage.setTitle("Adjacency Gameplay");
         primaryStage.setScene(new Scene(root));
         primaryStage.setResizable(false);
