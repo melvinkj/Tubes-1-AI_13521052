@@ -1,11 +1,15 @@
-/*
+package Bot;
+
+import Main.GameState;
+import Main.OutputFrameController;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 import java.util.Random;
 
-public class GeneticBot extends Bot {
+public abstract class GeneticBot extends Bot {
     String pawn;
 
     public GeneticBot (OutputFrameController gameBoard, Boolean isX) {
@@ -16,7 +20,7 @@ public class GeneticBot extends Bot {
             this.pawn = "O";
         }
     }
-    public int[] move(){
+    public int[] getBestMove(){
         List<int[]> finalChromosome = geneticAlgorithm();
         if (finalChromosome.size() == 0) {
             return null ;
@@ -210,4 +214,3 @@ public class GeneticBot extends Bot {
     }
 
 }
-*/
