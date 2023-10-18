@@ -1,3 +1,8 @@
+package Bot;
+
+import Main.GameState;
+import Main.OutputFrameController;
+
 public abstract class Bot {
     public GameState currentState;
 

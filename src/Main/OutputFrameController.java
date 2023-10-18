@@ -1,3 +1,8 @@
+package Main;
+
+import Bot.Bot;
+import Bot.LocalBot;
+import Bot.MinimaxBot;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -50,7 +55,7 @@ public class OutputFrameController {
     private int playerOScore;
     private int roundsLeft;
     private boolean isBotFirst;
-    private MinimaxBot bot;
+    private Bot bot;
 
 
 
@@ -61,6 +66,10 @@ public class OutputFrameController {
 
     public Button[][] getButtons() {
         return this.buttons;
+    }
+
+    public int getRoundsLeft() {
+        return this.roundsLeft;
     }
 
     /**
@@ -82,7 +91,7 @@ public class OutputFrameController {
         this.isBotFirst = isBotFirst;
 
         // Start bot
-        this.bot = new MinimaxBot(this);
+        this.bot = new LocalBot(this);
         this.playerXTurn = !isBotFirst;
         if (this.isBotFirst) {
             this.moveBot();
@@ -133,12 +142,10 @@ public class OutputFrameController {
         this.buttons[ROW - 1][0].setText("X");
         this.buttons[ROW - 2][1].setText("X");
         this.buttons[ROW - 1][1].setText("X");
-
         this.buttons[0][COL - 2].setText("O");
         this.buttons[0][COL - 1].setText("O");
         this.buttons[1][COL - 2].setText("O");
         this.buttons[1][COL - 1].setText("O");
-
 
 
         // Construct score board with 8 rows.

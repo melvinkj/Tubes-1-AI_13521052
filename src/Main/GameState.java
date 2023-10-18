@@ -1,7 +1,7 @@
+package Main;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GameState {
     public static int ROW = 8;
@@ -9,7 +9,9 @@ public class GameState {
 
     OutputFrameController gameBoard;
 
-    String[][] node;
+    int roundsLeft;
+
+    public String[][] node;
 
     public GameState(OutputFrameController gameBoard) {
         this.gameBoard = gameBoard;
@@ -19,6 +21,8 @@ public class GameState {
 
     public GameState() {
         this.gameBoard = new OutputFrameController();
+
+        this.roundsLeft = 0;
 
         this.node = new String[ROW][COL];
         for (int i = 0; i < ROW; i++) {
@@ -40,6 +44,8 @@ public class GameState {
     }
 
     public void copyFromGameboard() {
+        this.roundsLeft = this.gameBoard.getRoundsLeft() * 2;
+
         this.node = new String[ROW][COL];
         for (int i = 0; i < ROW; i++) {
             for (int j = 0; j < COL; j++) {
@@ -48,54 +54,43 @@ public class GameState {
         }
     }
 
-
+    public boolean isFixed(int i, int j) {
+        int[][] valVector = new int[][]{{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+        for (int[] vector: valVector) {
+            int _i = i - vector[0];
+            int _j = j - vector[1];
+            if (isNodeValid(_i, _j) && !(node[_i][_j] == node[i][j])) {
+                return false;
+            }
+        }
+        return true;
+    }
     public int evaluate() {
-        int countX = 0;
-        int countO = 0;
-        int countBadX = 0;
-        int countBadO = 0;
-        Map <int[], Boolean> cache = new HashMap<>();
-        int[][] badVector = new int[][] {{-2, 0}, {2, 0}, {0, -2}, {0, 2}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        int countVolatileX = 0;
+        int countVolatileO = 0;
+        int countFixedX = 0;
+        int countFixedO = 0;
         for (int i = 0; i < ROW; i++) {
             for (int j = 0; j < COL; j++) {
-                if (node[i][j].equals("X")) {
-                    countX++;
-                    for (int[] vector: badVector) {
-                        int _i = i + vector[0];
-                        int _j = j + vector[1];
-                        int[] coor = new int[]{_i, _j};
-                        if (!isNodeValid(_i, _j) || cache.containsKey(coor)) {
-                          continue;
-                        };
-                        cache.put(coor, true);
-                        if (node[_i][_j].equals("X")) {
-                            countBadX ++;
-                        }
+                if (node[i][j] == "X") {
+                    if (isFixed(i, j)) {
+                        countFixedX++;
+                    } else {
+                        countVolatileX++;
                     }
-                } else if (node[i][j].equals("O")) {
-                    countO++;
-                    for (int[] vector: badVector) {
-                        int _i = i + vector[0];
-                        int _j = j + vector[1];
-                        int[] coor = new int[]{_i, _j};
-                        if (!isNodeValid(_i, _j) || cache.containsKey(coor)) {
-                            continue;
-                        };
-                        cache.put(coor, true);
-                        if (node[_i][_j].equals("O")) {
-                            countBadO ++;
-                        }
+                } else if (node[i][j] == "O") {
+                    if (isFixed(i, j)) {
+                        countFixedO++;
+                    } else {
+                        countVolatileO++;
                     }
                 }
             }
         }
-        int w1 = 2;
-        int w2 = 1;
-        int f1 = countX - countO;
-        int f2 = countBadO - countBadX;
-        int evaluationScore = w1 * f1 + w2 * f2;
-        return evaluationScore;
-    };
+        return 4 * (countFixedO - countFixedX) + 1 * (countVolatileO - countVolatileX);
+    }
+
+
 
     public int utility() {
         int countX = 0;
@@ -133,6 +128,7 @@ public class GameState {
 
     public void putO(int i, int j) {
         node[i][j] = "O";
+        roundsLeft--;
         int[][] valVector = new int[][]{{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
         for (int[] vector: valVector) {
             int _i = i - vector[0];
@@ -143,11 +139,12 @@ public class GameState {
         }
     }
 
-    public boolean isNodeValid(int i, int j) {
+    public static boolean isNodeValid(int i, int j) {
         return (i >= 0 && i < ROW && j >= 0 && j < ROW);
     }
     public void putX(int i, int j) {
         node[i][j] = "X";
+        roundsLeft--;
         int[][] valVector = new int[][]{{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
         for (int[] vector: valVector) {
             int _i = i - vector[0];
@@ -170,7 +167,6 @@ public class GameState {
                 System.out.print("|");
             }
             System.out.println();
-
         }
     }
 
