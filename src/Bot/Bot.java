@@ -11,6 +11,8 @@ import java.util.TimerTask;
 import java.util.concurrent.*;
 
 public abstract class Bot implements Callable<int[]> {
+
+    private String symbol = "O";
     public GameState currentState;
     private GameStateEvaluator defaultEvaluator;
 
@@ -21,6 +23,11 @@ public abstract class Bot implements Callable<int[]> {
 
     public Bot(GameState currentState) {
         this.currentState = currentState;
+    }
+
+    public Bot(GameState currentState, String symbol){
+        this.currentState = currentState;
+        this.symbol = symbol;
     }
 
     @Override

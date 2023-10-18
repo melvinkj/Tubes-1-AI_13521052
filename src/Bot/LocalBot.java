@@ -8,6 +8,7 @@ public class LocalBot extends Bot {
     private static int ROW = 8;
     private static int COL = 8;
 
+
     private static final double COOLING_RATE = 0.95;
 
     private static double temperature = 1;
