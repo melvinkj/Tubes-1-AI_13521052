@@ -9,7 +9,7 @@ public class GameState {
 
     OutputFrameController gameBoard;
 
-    int roundsLeft;
+    private int roundsLeft;
 
     public String[][] node;
 
@@ -173,5 +173,9 @@ public class GameState {
             }
         }
         return count;
+    }
+
+    public int getRoundsLeft() {
+        return roundsLeft;
     }
 }

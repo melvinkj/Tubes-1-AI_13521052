@@ -110,16 +110,16 @@ public class OutputFrameController {
 
         // Start bot
         if(this.bot1Algo.equals("Minimax")){
-            this.bot = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
+            this.bot = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), "O");
         }else if(this.bot1Algo.equals("Local Search")){
-            this.bot = new LocalBot(this);
+            this.bot = new LocalBot(this, "O");
         }else{
             this.bot = new GeneticBot(this, false);
         }
         if(this.bot2Algo.equals("Minimax")){
-            this.bot2 = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
+            this.bot2 = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), "X");
         }else if(this.bot2Algo.equals("Local Search")){
-            this.bot2 = new LocalBot(this);
+            this.bot2 = new LocalBot(this, "X");
         }else{
             this.bot = new GeneticBot(this, true);
         }
@@ -237,21 +237,28 @@ public class OutputFrameController {
                 this.playerXBoxPane.setStyle("-fx-background-color: WHITE; -fx-border-color: #D3D3D3;");
                 this.playerOBoxPane.setStyle("-fx-background-color: #90EE90; -fx-border-color: #D3D3D3;");
 
-                Platform.runLater(() -> {
+                if(gameMode.equals("Bot vs Bot")){
+                    try {
+                        TimeUnit.SECONDS.sleep(1); // Wait for 1 second
+                    } catch (InterruptedException e) {
+                        // Handle any exceptions here (if needed)
+                        e.getMessage();
+                    }
+                    Platform.runLater(() -> {
+                        this.buttons[i][j].setText("X");  // Mark the board with X.
+                    });
+
+                }else{
                     this.buttons[i][j].setText("X");  // Mark the board with X.
-                });
+                }
 
                 this.playerXScore++;              // Increment the score of player X.
+
 
                 // Update game board by changing surrounding cells to X if applicable.
                 this.updateGameBoard(i, j);
                 this.playerXTurn = false;         // Alternate player's turn.
 
-                try {
-                    TimeUnit.SECONDS.sleep(1); // Wait for 1 second
-                } catch (InterruptedException e) {
-                    // Handle any exceptions here (if needed)
-                }
 
                 if (isBotFirst) {
                     this.roundsLeft--; // Decrement the number of rounds left after both Player X & Player O have played.
@@ -272,21 +279,26 @@ public class OutputFrameController {
             else {
                 this.playerXBoxPane.setStyle("-fx-background-color: #90EE90; -fx-border-color: #D3D3D3;");
                 this.playerOBoxPane.setStyle("-fx-background-color: WHITE; -fx-border-color: #D3D3D3;");
-//                this.buttons[i][j].setText("O");
 
-                Platform.runLater(() -> {
-                    this.buttons[i][j].setText("O");  // Mark the board with X.
-                });
+                if(gameMode.equals("Bot vs Bot")){
+                    try {
+                        TimeUnit.SECONDS.sleep(1); // Wait for 1 second
+                    } catch (InterruptedException e) {
+                        // Handle any exceptions here (if needed)
+                        e.getMessage();
+                    }
+                    Platform.runLater(() -> {
+                        this.buttons[i][j].setText("O");  // Mark the board with O.
+                    });
+                }else{
+                    this.buttons[i][j].setText("O");  // Mark the board with O.
+                }
+
+
                 this.playerOScore++;
 
                 this.updateGameBoard(i, j);
                 this.playerXTurn = true;
-
-                try {
-                    TimeUnit.SECONDS.sleep(1); // Wait for 1 second
-                } catch (InterruptedException e) {
-                    // Handle any exceptions here (if needed)
-                }
 
                 if (!isBotFirst) {
                     this.roundsLeft--; // Decrement the number of rounds left after both Player X & Player O have played.
@@ -294,7 +306,6 @@ public class OutputFrameController {
                         this.roundsLeftLabel.setText(String.valueOf(this.roundsLeft));
                     });
                 }
-
 
                 if (!isBotFirst && this.roundsLeft == 0) { // Game has terminated.
                     this.endOfGame();       // Determine & announce the winner.
@@ -344,7 +355,20 @@ public class OutputFrameController {
 
         // Search for adjacency for X's and O's or vice versa, and replace them.
         // Update scores for X's and O's accordingly.
-        Platform.runLater(() -> {
+
+        if(gameMode.equals("Bot vs Bot")){
+            Platform.runLater(() -> {
+                for (int x = startRow; x <= endRow; x++) {
+                    this.setPlayerScore(x, j);
+                }
+
+                for (int y = startColumn; y <= endColumn; y++) {
+                    this.setPlayerScore(i, y);
+                }
+                this.playerXScoreLabel.setText(String.valueOf(this.playerXScore));
+                this.playerOScoreLabel.setText(String.valueOf(this.playerOScore));
+            });
+        }else{
             for (int x = startRow; x <= endRow; x++) {
                 this.setPlayerScore(x, j);
             }
@@ -352,10 +376,12 @@ public class OutputFrameController {
             for (int y = startColumn; y <= endColumn; y++) {
                 this.setPlayerScore(i, y);
             }
+            Platform.runLater(() -> {
+                this.playerXScoreLabel.setText(String.valueOf(this.playerXScore));
+                this.playerOScoreLabel.setText(String.valueOf(this.playerOScore));
+            });
+        }
 
-            this.playerXScoreLabel.setText(String.valueOf(this.playerXScore));
-            this.playerOScoreLabel.setText(String.valueOf(this.playerOScore));
-        });
     }
 
     private void setPlayerScore(int i, int j){
@@ -380,7 +406,6 @@ public class OutputFrameController {
     private void endOfGame(){
         // Player X is the winner.
         if (this.playerXScore > this.playerOScore) {
-            System.out.println("X win");
             Platform.runLater(() -> {
                 new Alert(Alert.AlertType.INFORMATION,
                         this.playerXName.getText() + " has won the game!").showAndWait();
@@ -394,7 +419,6 @@ public class OutputFrameController {
 
         // Player O is the winner,
         else if (this.playerOScore > this.playerXScore) {
-            System.out.println("O win");
             Platform.runLater(() -> {
                 new Alert(Alert.AlertType.INFORMATION,
                         this.playerOName.getText() + " has won the game!").showAndWait();
@@ -406,7 +430,6 @@ public class OutputFrameController {
 
         // Player X and Player O tie.
         else {
-            System.out.println("tied");
             Platform.runLater(() -> {
                 new Alert(Alert.AlertType.INFORMATION,
                         this.playerXName.getText() + " and " + this.playerOName.getText() + " have tied!").showAndWait();
@@ -415,7 +438,6 @@ public class OutputFrameController {
             });
 
         }
-        System.out.println("checkpoint2");
 
         // Disable the game board buttons to prevent from playing further.
 

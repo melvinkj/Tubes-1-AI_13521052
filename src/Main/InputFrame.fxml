@@ -29,21 +29,21 @@
                 </RadioButton>
             </HBox>
 
-            <Label text="Player Name (X): " GridPane.rowIndex="1" GridPane.columnIndex="0">
+            <Label text="Player Name / Second Bot (X): " GridPane.rowIndex="1" GridPane.columnIndex="0">
                 <font>
                     <Font name="Arial Bold" size="12"/>
                 </font>
             </Label>
             <TextField fx:id="player1" GridPane.rowIndex="1" GridPane.columnIndex="1"> </TextField>
 
-            <Label text="Bot Name (O): " GridPane.rowIndex="2" GridPane.columnIndex="0">
+            <Label text="First Bot (O): " GridPane.rowIndex="2" GridPane.columnIndex="0">
                 <font>
                     <Font name="Arial Bold" size="12"/>
                 </font>
             </Label>
             <TextField fx:id="player2" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
-            <Label text="Bot 1 Type:" GridPane.rowIndex="3" GridPane.columnIndex="0">
+            <Label text="First Bot Type:" GridPane.rowIndex="3" GridPane.columnIndex="0">
                 <font>
                     <Font name="Arial Bold" size="12"/>
                 </font>
@@ -53,7 +53,7 @@
 
             <ComboBox fx:id="bot1Type" GridPane.rowIndex="3" GridPane.columnIndex="1" maxWidth="Infinity" />
 
-            <Label text="Bot 2 Type:" GridPane.rowIndex="4" GridPane.columnIndex="0">
+            <Label text="Second Bot Type:" GridPane.rowIndex="4" GridPane.columnIndex="0">
                 <font>
                     <Font name="Arial Bold" size="12"/>
                 </font>
