@@ -14,7 +14,7 @@ public class MinimaxBot extends Bot {
     public static int MAX_PLAYER = 1;
     public static int MIN_PLAYER = 0;
     private static int INF = 999999999;
-    private static int DEF_LEAF_GENERATED = 1000000;
+    public static int DEF_LEAF_GENERATED = 1000000;
     private static int EXECUTOR_NUM = 8;
 
 
@@ -25,8 +25,8 @@ public class MinimaxBot extends Bot {
 
 
 
-    public MinimaxBot(OutputFrameController gameBoard, GameStateEvaluator evaluator, SuccessorsGenerator generator) {
-        super(gameBoard);
+    public MinimaxBot(OutputFrameController gameBoard, GameStateEvaluator evaluator, SuccessorsGenerator generator, String symbol) {
+        super(gameBoard, symbol);
         this.evaluator = evaluator;
         this.generator = generator;
         this.executorService = Executors.newFixedThreadPool(EXECUTOR_NUM);
@@ -176,7 +176,7 @@ class IDSRunner implements Runnable {
     public void run() {
         GameState currentState = bot.getCurrentState();
         int finalDepth = Math.min(bot.getGenerator().generateSuccessors(currentState).size(), currentState.getRoundsLeft());
-        int maxDepth = bot.getGenerator().calculateMaxDepth(currentState, 1000000);
+        int maxDepth = bot.getGenerator().calculateMaxDepth(currentState, MinimaxBot.DEF_LEAF_GENERATED);
         while (!Thread.currentThread().isInterrupted() && maxDepth <= finalDepth) {
             this.result = bot.bestMoveMinimax(maxDepth);
             this.depth = maxDepth;

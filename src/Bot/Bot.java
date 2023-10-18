@@ -11,6 +11,8 @@ import java.util.TimerTask;
 import java.util.concurrent.*;
 
 public abstract class Bot implements Callable<int[]> {
+
+    public String symbol = "O";
     public GameState currentState;
     private GameStateEvaluator defaultEvaluator;
 
@@ -23,6 +25,11 @@ public abstract class Bot implements Callable<int[]> {
         this.currentState = currentState;
     }
 
+    public Bot(OutputFrameController gameBoard, String symbol){
+        this.currentState = new GameState(gameBoard);
+        this.symbol = symbol;
+    }
+
     @Override
     public int[] call() throws Exception {
         return getBestMove();
@@ -31,6 +38,10 @@ public abstract class Bot implements Callable<int[]> {
     public GameState getCurrentState() {
         this.currentState.copyFromGameboard();
         return this.currentState;
+    }
+
+    public String getSymbol() {
+        return symbol;
     }
 
     public abstract int[] getBestMove() throws Exception;
