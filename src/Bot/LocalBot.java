@@ -103,16 +103,13 @@ public class LocalBot extends Bot {
                 temp.putX(bestMove[0], bestMove[1]);
 
                 neighbourValue = evaluate(temp);
-                System.out.println(neighbourValue);
-                int currentValue = evaluate(currentState);
-                System.out.println(currentValue);
+                int currentValue = evaluate(getCurrentState());
 
                 if (neighbourValue > currentValue) {
                     accept = true;
                 } else {
                     int diff = neighbourValue - currentValue;
                     double prob = Math.exp(diff / temperature);
-                    System.out.println(prob);
                     temperature = temperature * COOLING_RATE;
                     if (prob > threshold) {
                         accept = true;

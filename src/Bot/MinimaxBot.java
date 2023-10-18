@@ -5,7 +5,9 @@ import Main.GameState;
 import Main.OutputFrameController;
 import SuccessorsGenerator.SuccessorsGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.function.Function;
 
 public class MinimaxBot extends Bot {
@@ -15,6 +17,8 @@ public class MinimaxBot extends Bot {
     private GameStateEvaluator evaluator;
     private SuccessorsGenerator generator;
     private int maxLeafGenerated;
+
+    private static ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     public MinimaxBot(OutputFrameController gameBoard, GameStateEvaluator evaluator, SuccessorsGenerator generator, int maxLeafGenerated) {
         super(gameBoard);
@@ -45,15 +49,29 @@ public class MinimaxBot extends Bot {
         int bestMoveValue = -INF;
         int alpha = -INF;
         int beta = INF;
+        List<Future<Integer>> futures = new ArrayList<>();
+
         for (int[] possibleMove : possibleMoves) {
-            GameState projectedState = new GameState(currentState);
-            projectedState.putO(possibleMove[0], possibleMove[1]);
-            int projectedStateValue = minimax(MAX_PLAYER, projectedState, alpha, beta, maxDepth);
-            if (projectedStateValue > bestMoveValue) {
-                bestMove = possibleMove;
-                bestMoveValue = projectedStateValue;
+            Future<Integer> future = executorService.submit(() -> {
+                GameState projectedState = new GameState(currentState);
+                projectedState.putO(possibleMove[0], possibleMove[1]);
+                return minimax(MAX_PLAYER, projectedState, alpha, beta, maxDepth);
+            });
+            futures.add(future);
+        }
+
+        for (int i = 0; i < possibleMoves.size(); i++) {
+            try {
+                int projectedStateValue = futures.get(i).get();
+                if (projectedStateValue > bestMoveValue) {
+                    bestMove = possibleMoves.get(i);
+                    bestMoveValue = projectedStateValue;
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
+
         return bestMove;
     }
 
