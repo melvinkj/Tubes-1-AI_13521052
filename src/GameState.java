@@ -177,4 +177,18 @@ public class GameState {
     public String[][] getNode() {
         return this.node;
     }
+    public int countPawn(boolean isX){
+        int count = 0;
+        for(int i = 0; i < this.ROW; i++){
+            for(int j=0; j < this.COL; j++){
+                if (node[i][j].equals('X') && isX) {
+                    count++;
+                }
+                if (node[i][j].equals('O') && !isX) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
 }
