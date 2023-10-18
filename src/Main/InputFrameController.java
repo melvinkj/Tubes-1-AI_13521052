@@ -4,12 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -34,6 +31,21 @@ public class InputFrameController{
     @FXML
     private ComboBox<String> numberOfRounds;
 
+    @FXML
+    private ComboBox<String> bot1Type;
+
+    @FXML
+    private ComboBox<String> bot2Type;
+
+    @FXML
+    private RadioButton playerVsBot;
+
+    @FXML
+    private RadioButton botVsBot;
+
+    private ToggleGroup gameMode = new ToggleGroup();
+
+
 
     /**
      * Initialize the dropdown ComboBox with a list of items that are allowed to be selected.
@@ -45,8 +57,22 @@ public class InputFrameController{
         ObservableList<String> numberOfRoundsDropdown = FXCollections.observableArrayList(
                 "", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
                 "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28");
+
+        ObservableList<String> botOption = FXCollections.observableArrayList(
+                "Minimax", "Local Search", "Genetic Algorithm");
+
+
         this.numberOfRounds.setItems(numberOfRoundsDropdown);
         this.numberOfRounds.getSelectionModel().select(0);
+
+        this.bot1Type.setItems(botOption);
+        this.bot1Type.getSelectionModel().select(0);
+
+        this.bot2Type.setItems(botOption);
+        this.bot2Type.getSelectionModel().select(0);
+
+        playerVsBot.setToggleGroup(gameMode);
+        botVsBot.setToggleGroup(gameMode);
     }
 
 
@@ -79,10 +105,20 @@ public class InputFrameController{
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("OutputFrame.fxml"));
             Parent root = loader.load();
+            RadioButton selectedGameMode = (RadioButton) gameMode.getSelectedToggle();
+            String gameModeValue = selectedGameMode.getText();
 
             // Get controller of output frame and pass input including player names and number of rounds chosen.
             OutputFrameController outputFC = loader.getController();
-            outputFC.getInput(this.player1.getText(), this.player2.getText(), this.numberOfRounds.getValue(), this.isBotFirst.isSelected());
+            outputFC.getInput(
+                    this.player1.getText(),
+                    this.player2.getText(),
+                    this.numberOfRounds.getValue(),
+                    this.isBotFirst.isSelected(),
+                    gameModeValue,
+                    this.bot1Type.getValue(),
+                    this.bot2Type.getValue()
+                    );
 
             // Open the new frame.
             Stage secondaryStage = new Stage();
