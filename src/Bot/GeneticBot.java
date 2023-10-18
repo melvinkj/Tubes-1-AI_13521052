@@ -24,7 +24,7 @@ public class GeneticBot extends Bot {
 
     public Chromosome geneticAlgorithm(){
         List<Chromosome> population = generatePopulation(this.getCurrentState().getWhiteSpots());
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 200; i++) {
             population.addAll(generateOffsprings(population));
             // sorting
             Comparator<Chromosome> descendingComparator = (o1, o2) -> Integer.compare(o2.getFitnessValue(), o1.getFitnessValue());
@@ -56,7 +56,7 @@ public class GeneticBot extends Bot {
     public List<Chromosome> generatePopulation(List<int[]> whiteSpots){
         List<Chromosome> population = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             Chromosome newChromosome = new Chromosome(new ArrayList<>(whiteSpots), isX);
             newChromosome.randomizeGeneSequence();
             population.add(newChromosome);
