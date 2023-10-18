@@ -2,86 +2,117 @@ package Bot;
 
 import Main.GameState;
 import Main.OutputFrameController;
+import Utility.Chromosome;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
-public abstract class GeneticBot extends Bot {
-    String pawn;
+public class GeneticBot extends Bot {
+    Boolean isX;
 
     public GeneticBot (OutputFrameController gameBoard, Boolean isX) {
         super(gameBoard);
-        if (isX) {
-            this.pawn = "X";
-        } else {
-            this.pawn = "O";
-        }
+        this.isX = isX;
     }
     public int[] getBestMove(){
-        List<int[]> finalChromosome = geneticAlgorithm();
-        if (finalChromosome.size() == 0) {
+        Chromosome finalChromosome = geneticAlgorithm();
+        if (finalChromosome.getSize() == 0) {
             return null ;
         }
-        int [] coordinate = finalChromosome.get(0);
+        int [] coordinate = finalChromosome.getGeneAt(0);
         return coordinate;
     }
 
-    public List<int[]> geneticAlgorithm(){
-        List<List<int[]>> population = generatePopulation(this.getCurrentState().getWhiteSpots());
-        List<Integer> fitnessValues = new ArrayList<>();
+    public Chromosome geneticAlgorithm(){
+        List<Chromosome> population = generatePopulation(this.getCurrentState().getWhiteSpots());
         for (int i = 0; i < 4; i++) {
             population.addAll(generateOffsprings(population));
+            // sorting
+            Comparator<Chromosome> descendingComparator = (o1, o2) -> Integer.compare(o2.getFitnessValue(), o1.getFitnessValue());
+            Collections.sort(population, descendingComparator);
+
+            // pruning
+            int elementsToRemove = population.size() / 2;
+
+            for (int j = 0; j < elementsToRemove; j++) {
+                int lastIndex = population.size() - 1;
+                population.remove(lastIndex);
+            }
         }
 
         int max = 0;
         int indexMax = 0;
         for (int j = 0; j < population.size(); j++) {
-            int value = fitnessFunction(this.getCurrentState(), population.get(j));
-            fitnessValues.add(value);
+            int value = population.get(j).getFitnessValue();
             if (value > max) {
                 max = value;
                 indexMax = j;
             }
         }
 
-        List<int[]> finalChromosome = new ArrayList<>(population.get(indexMax));
-
-        return finalChromosome;
+        return population.get(indexMax);
     }
 
-    public static List<List<int[]>> orderedCrossover(List<int[]> parent1, List<int[]> parent2) {
-        List<List<int[]>> children = new ArrayList<>();
-        List<int[]> child1 = new ArrayList<>(Collections.nCopies(parent1.size(), null));
-        List<int[]> child2 = new ArrayList<>(Collections.nCopies(parent1.size(), null));
 
-        int start = parent1.size()/3 ;
-        int end = parent1.size()*2/3;
+    public List<Chromosome> generatePopulation(List<int[]> whiteSpots){
+        List<Chromosome> population = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            Chromosome newChromosome = new Chromosome(new ArrayList<>(whiteSpots), isX);
+            newChromosome.randomizeGeneSequence();
+            population.add(newChromosome);
+        }
+        return population;
+    }
+
+    public List<Chromosome> generateOffsprings(List<Chromosome> parentPopulation){
+        List<Chromosome> selectedParentChromosomes = selectParentChromosomes(parentPopulation);
+        List<Chromosome> offsprings = new ArrayList<>();
+        int i = 0;
+        while (i < parentPopulation.size()) {
+            List<Chromosome> children = orderedCrossover(selectedParentChromosomes.get(i), selectedParentChromosomes.get(i+1));
+            Random random = new Random();
+
+            int randomNumber = random.nextInt(10) + 1;
+            if (randomNumber % 10 == 0) {
+                children.get(0).mutation();
+            }
+
+            offsprings.add(children.get(0));
+            offsprings.add(children.get(1));
+            i += 2;
+        }
+        return offsprings;
+    }
+
+    public List<Chromosome> orderedCrossover(Chromosome parent1, Chromosome parent2) {
+        List<Chromosome> children = new ArrayList<>();
+        Chromosome child1 = new Chromosome(new ArrayList<>(Collections.nCopies(parent1.getSize(), null)), this.isX);
+        Chromosome child2 = new Chromosome(new ArrayList<>(Collections.nCopies(parent1.getSize(), null)), this.isX);
+
+        int start = parent1.getSize()/3 ;
+        int end = parent1.getSize()*2/3;
 
         // Copy the selected range from parent1 to child1 and from parent2 to child2
         for (int i = start; i < end; i++) {
-            int[] gene1 = parent1.get(i);
-            int[] gene2 = parent2.get(i);
-//            int[] gene1Part = Arrays.copyOfRange(gene1, start, end + 1);
-//            int[] gene2Part = Arrays.copyOfRange(gene2, start, end + 1);
-            child1.set(i, gene1);
-            child2.set(i, gene2);
+            int[] gene1 = parent1.getGeneAt(i);
+            int[] gene2 = parent2.getGeneAt(i);
+
+            child1.setGeneAt(i, gene1);
+            child2.setGeneAt(i, gene2);
         }
 
         // Fill the rest of the genes from parent2 to child1 and from parent1 to child2 while avoiding duplicates
-        for (int i = 0; i < parent1.size(); i++) {
+        for (int i = 0; i < parent1.getSize(); i++) {
             for (int j = 0; j < 2; j++) {
-                int[] gene1 = parent2.get(i);
-                int[] gene2 = parent1.get(i);
-                if (!containsGene(child1, gene1)) {
-                    int index = child1.indexOf(null);
-                    child1.set(index, gene1);
+                int[] gene1 = parent2.getGeneAt(i);
+                int[] gene2 = parent1.getGeneAt(i);
+                if (!child1.containsGene(gene1)) {
+                    int index = child1.getGenes().indexOf(null);
+                    child1.setGeneAt(index, gene1);
                 }
-                if (!containsGene(child2, gene2)) {
-                    int index = child2.indexOf(null);
-                    child2.set(index, gene2);
+                if (!child2.containsGene(gene2)) {
+                    int index = child2.getGenes().indexOf(null);
+                    child2.setGeneAt(index, gene2);
                 }
 
             }
@@ -92,66 +123,12 @@ public abstract class GeneticBot extends Bot {
         return children;
     }
 
-    public static boolean containsGene(List<int[]> chromosome, int[] geneTarget) {
-        for (int[] gene : chromosome) {
-            if (gene != null && gene[0] == geneTarget[0] && gene[1] == geneTarget[1]){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void mutation(List<int[]> chromosome){
-        if (chromosome.size() <=1) {
-            return;
-        }
-        Random random = new Random();
-        int randomValue = random.nextInt(chromosome.size()-1);
-        int[] temp = chromosome.get(randomValue);
-        chromosome.set(randomValue, chromosome.get(randomValue + 1));
-        chromosome.set(randomValue+1, temp);
-    }
-
-
-    public List<List<int[]>> generatePopulation(List<int[]> whiteSpots){
-        List<List<int[]>> population = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            List<int[]> randomizedList = new ArrayList<>(whiteSpots);
-            Collections.shuffle(randomizedList);
-            population.add(randomizedList);
-        }
-        return population;
-    }
-
-    public List<List<int[]>> generateOffsprings(List<List<int[]>> parentPopulation){
-        List<List<int[]>> selectedParentChromosomes = selectParentChromosomes(parentPopulation);
-        List<List<int[]>> offsprings = new ArrayList<>();
-        int i = 0;
-        while (i < parentPopulation.size()) {
-            List<List<int[]>> children = orderedCrossover(selectedParentChromosomes.get(i), selectedParentChromosomes.get(i+1));
-            Random random = new Random();
-
-            int randomNumber = random.nextInt(10) + 1;
-            if (randomNumber % 10 == 0) {
-                mutation(children.get(0));
-            }
-
-            offsprings.add(children.get(0));
-            offsprings.add(children.get(1));
-            i += 2;
-        }
-        return offsprings;
-    }
-
-    public List<List<int[]>> selectParentChromosomes(List<List<int[]>> population){
-        List<List<int[]>> selectedChromosomes = new ArrayList<>();
-        List<Integer> fitnessValueList = new ArrayList<>();
+    public List<Chromosome> selectParentChromosomes(List<Chromosome> population){
+        List<Chromosome> selectedChromosomes = new ArrayList<>();
 
         int sumValue = 0;
         for (int i = 0; i < population.size(); i++) {
-            int value = fitnessFunction(this.getCurrentState(), population.get(i));
-            fitnessValueList.add(value);
+            int value =  population.get(i).fitnessFunction(this.getCurrentState());
             sumValue += value;
         }
 
@@ -161,9 +138,9 @@ public abstract class GeneticBot extends Bot {
             Random random = new Random();
             float randomFloat = random.nextFloat();
             System.out.println("Float:" + randomFloat);
-
-            while (randomFloat >= currentValue + (float)fitnessValueList.get(index)/sumValue) {
-                currentValue += (float)fitnessValueList.get(index)/sumValue;
+            System.out.println(population.get(index).getFitnessValue());
+            while (randomFloat >= currentValue + (float)population.get(index).getFitnessValue()/sumValue) {
+                currentValue += (float)population.get(index).getFitnessValue()/sumValue;
                 System.out.print(currentValue + ",");
                 index++;
             }
@@ -172,45 +149,4 @@ public abstract class GeneticBot extends Bot {
 
         return selectedChromosomes;
     }
-
-    public int fitnessFunction(GameState initialState, List<int[]> chromosome){
-        GameState finalState = simulate(initialState, chromosome);
-
-        int value = 0;
-        for (int i = 0; i < finalState.ROW; i++){
-            for (int j = 0; j < finalState.COL; j++){
-                if (finalState.node[i][j].equals(this.pawn)){
-                    value++;
-                }
-            }
-        }
-        return value;
-    }
-
-    public GameState simulate(GameState currentState, List<int[]> chromosome){
-        GameState state = new GameState(currentState);
-
-        boolean botTurn = true;
-        for (int i = 0; i < chromosome.size(); i++){
-            int[] coordinate = chromosome.get(i);
-            if (botTurn) {
-                if (pawn.equals("X")) {
-                    state.putX(coordinate[0], coordinate[1]);
-                } else {
-                    state.putO(coordinate[0], coordinate[1]);
-                }
-                botTurn = !botTurn;
-                continue;
-            }
-            if (pawn.equals("X")) {
-                state.putO(coordinate[0], coordinate[1]);
-            } else {
-                state.putX(coordinate[0], coordinate[1]);
-            }
-            botTurn = !botTurn;
-        }
-
-        return state;
-    }
-
 }

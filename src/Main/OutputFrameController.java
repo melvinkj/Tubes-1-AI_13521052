@@ -3,6 +3,7 @@ package Main;
 import Bot.Bot;
 import Bot.LocalBot;
 import Bot.MinimaxBot;
+import Bot.GeneticBot;
 import GameStateEvaluator.LinearVolatilityGameStateEvaluator;
 import GameStateEvaluator.VolatileNonVolatileGameStateEvaluator;
 import SuccessorsGenerator.DefaultSuccessorsGenerator;
@@ -113,16 +114,14 @@ public class OutputFrameController {
         }else if(this.bot1Algo.equals("Local Search")){
             this.bot = new LocalBot(this);
         }else{
-            // TODO
-            System.out.println("belum kelar");
+            this.bot = new GeneticBot(this, false);
         }
         if(this.bot2Algo.equals("Minimax")){
             this.bot2 = new MinimaxBot(this, new  LinearVolatilityGameStateEvaluator(), new DefaultSuccessorsGenerator(), 10000000);
         }else if(this.bot2Algo.equals("Local Search")){
             this.bot2 = new LocalBot(this);
         }else{
-            // TODO
-            System.out.println("belum kelar");
+            this.bot = new GeneticBot(this, true);
         }
         this.playerXTurn = !isBotFirst;
         if (this.isBotFirst) {
